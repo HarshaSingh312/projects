@@ -1,0 +1,17 @@
+[
+  {
+  "id": "req_1",
+  "amount": 10000,
+  "user": "alice2"
+ },
+  {
+    "id": "req_2",
+    "amount": 150,
+    "user": "bob"
+  },
+  {
+    "id": "req_1",
+    "amount": 1000,
+    "user": "alice2"
+  }
+]
