@@ -1,0 +1,78 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+// int ans = 0;
+
+pair<int, int> helper(unordered_map<string, vector<pair<string, int>>> &graph, unordered_map<string, int> &points, string currNode, unordered_map<string, pair<int, int>> &dp) {
+    
+    if (graph[currNode].size() == 0) {
+        return make_pair(points[currNode], 0);
+    }
+    
+    if (dp.find(currNode) != dp.end()) return dp[currNode];
+    
+    pair<int, int> maxSoFar = {INT_MIN, INT_MAX}; // cost, distance
+    int diff = INT_MIN;
+    // Explore neighbors
+    for (int i=0; i<graph[currNode].size(); i++) {
+        int distance = graph[currNode][i].second;
+        int price = points[currNode];
+        pair<int, int> curr = helper(graph, points, graph[currNode][i].first, dp);
+        int newPrice = curr.first + price - curr.second - distance;
+        if (newPrice > diff) {
+            curr.first += price;
+            curr.second += distance;
+            maxSoFar = curr;
+            diff = newPrice;
+        }
+    }
+    dp[currNode] = maxSoFar;
+    return maxSoFar;
+}
+
+int main() {
+    vector<vector<string> > paths({
+    {"START", "A", "5"},
+    {"START", "B", "6"},
+    {"START", "C", "10"},
+    {"A", "D", "4"},
+    {"B", "D", "5"},
+    {"C", "D", "6"},
+    {"C", "E", "5"},
+    {"D", "F", "3"},
+    {"E", "F", "1"},
+    {"F", "END_1", "5"},
+    {"F", "END_2", "10"}
+});
+
+vector<vector<string> > points({
+    {"START", "0"},
+    {"A", "24"},
+    {"B", "3"},
+    {"C", "10"},
+    {"D", "7"},
+    {"E", "24"},
+    {"F", "3"},
+    {"END_1", "4"},
+    {"END_2", "7"}
+});
+
+unordered_map<string, vector<pair<string, int>>> graph;
+unordered_map<string, int> pointsMap;
+
+for (int i= 0; i< paths.size(); i++) {
+    graph[paths[i][0]].push_back({paths[i][1], stoi(paths[i][2])});
+}
+
+for (int i=0; i<points.size(); i++) {
+    pointsMap[points[i][0]] = stoi(points[i][1]);
+}
+
+unordered_map<string, pair<int, int>> dp;
+
+pair<int, int> ans = helper(graph, pointsMap, "START", dp);
+// cout<<ans.first<<" "<< ans.second<<endl;
+cout<<ans.first- ans.second;
+
+    return 0;
+}
