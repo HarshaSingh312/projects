@@ -1,0 +1,80 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Product {
+    string name;
+    int price;
+    int calories;
+
+    Product(string n, int p, int c) : name(n), price(p), calories(c) {}
+};
+
+int productSum = INT_MAX;
+vector<int> ans;
+vector<vector<int>> choice; 
+
+int helper(vector<Product> &products, int i, int target, vector<vector<int>> &dp) {
+    if (target <= 0) {
+        return 0;
+    }
+    
+    if (i >= products.size()) {
+        return INT_MAX;
+    };
+    
+    if (dp[i][target] != -1) return dp[i][target];
+    
+    // taking
+    int taking = helper(products, i, target - products[i].calories, dp);
+    if (taking != INT_MAX) taking += products[i].price;
+    // not taking
+    int notTaking = helper(products, i + 1, target, dp);
+    if (taking <= notTaking) {
+        choice[i][target] = 1; // take
+        return dp[i][target] = taking;
+    } else {
+        choice[i][target] = 0; // skip
+        return dp[i][target] = notTaking;
+    }
+}
+
+vector<string> reconstruct(vector<Product>& products, int target){
+    vector<string> res;
+    int i = 0;
+    while (i < products.size() && target > 0) {
+        if (choice[i][target] == 1) {
+            res.push_back(products[i].name);
+            target -= products[i].calories; // stay on same i
+        } else {
+            i++;
+        }
+    }
+    return res;
+    }
+    
+int main() {
+    vector<Product> products;
+
+    // 🔹 add items properly
+    products.push_back(Product("Burger", 5, 300));
+    products.push_back(Product("Fries", 2, 300));
+    products.push_back(Product("Pizza", 8, 500));
+    products.push_back(Product("Pizza2", 3, 500));
+    products.push_back(Product("Burger2", 19, 900));
+    int target = 700;
+    int n = products.size();
+    
+    choice.assign(n, vector<int>(target + 1, -1));
+    
+    vector<vector<int>> dp(products.size(), vector<int> (target + 1, -1));
+
+    int ans = helper(products, 0, target, dp);
+
+    cout << "Minimum cost: " << ans << endl;
+  
+    vector<string> list = reconstruct(products, target);
+    for (int i=0; i< list.size(); i++) {
+        cout<<list[i]<<" ";
+    }
+    return 0;
+}
