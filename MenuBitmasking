@@ -1,0 +1,60 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int ans = 0;
+
+int helper(vector<pair<int, int>> &menuMask, int targetedMask, int i, int currMask) {
+    
+    if (targetedMask == currMask) {
+        return 0;
+    }
+    
+    if (i >= menuMask.size()) return INT_MAX;
+    
+    // take
+    int take = helper(menuMask, targetedMask, i + 1, currMask | menuMask[i].second);
+    take = take == INT_MAX? INT_MAX: take + menuMask[i].first;
+    
+    int skip = helper(menuMask, targetedMask, i + 1, currMask);
+    
+    // cout<<i<<" "<<take<<" "<<skip<<endl;
+    
+    return min(take, skip);
+}
+
+int main() {
+    vector<pair<int, vector<string>>> menu = {
+    {8, {"pizza"}},
+    {9, {"pasta"}},
+    {7, {"pizza","pasta"}},
+    {11, {"burger"}},
+    {12, {"burger","pizza","pasta"}}
+    };
+
+    vector<string> order = {"burger", "pizza"};
+    
+    unordered_map<string, int> bitIndexMapping;
+    vector<pair<int, int>> menuMask(menu.size()); // price, mask
+    
+    for (int i = 0; i<order.size(); i++) {
+        bitIndexMapping[order[i]] = i + 1;
+    }
+    
+    for (int i=0; i < menu.size(); i++) {
+        vector<string> items = menu[i].second;
+        int mask = 0;
+        for (int j = 0; j < items.size(); j++) {
+            if (bitIndexMapping[items[j]]) {
+                mask |= 1 << (bitIndexMapping[items[j]] - 1);
+            }
+        }
+        menuMask[i] = {menu[i].first, mask};
+    }
+    
+    int targetedMask = (1 << order.size()) - 1;
+    // cout<<"targetedMask "<<targetedMask<<endl;
+    
+    cout<<helper(menuMask, targetedMask, 0, 0);
+
+    return 0;
+}
