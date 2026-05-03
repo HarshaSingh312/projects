@@ -1,0 +1,37 @@
+class Solution {
+public:
+
+    int helper(vector<vector<int>> &jobs, int i, vector<int> &dp) {
+        if (i >= jobs.size()) return 0;
+
+        if (dp[i] != -1) return dp[i];
+
+        int taking = 0, notTaking = 0;
+        
+        // Taking
+        // int j = i;
+        // while (j < jobs.size() && jobs[j][0] < jobs[i][1]) {
+        //     j++;
+        // }
+        auto itr = upper_bound(jobs.begin(), jobs.end(), jobs[i][1], [](int endT, const vector<int>& job) {
+        return endT <= job[0];  // true if endT < job’s start
+    }); 
+        taking = helper(jobs, itr - jobs.begin(), dp) + jobs[i][2];
+
+        // Not taking
+        notTaking = helper(jobs, i + 1, dp);
+
+        return dp[i] = max(taking, notTaking);
+    }
+
+    int jobScheduling(vector<int>& startTime, vector<int>& endTime, vector<int>& profit) {
+        vector<int> dp(startTime.size(), -1);
+        vector<vector<int>> jobs;
+        int n = startTime.size();
+        for (int i = 0; i < n; ++i) {
+            jobs.push_back({startTime[i], endTime[i], profit[i]});
+        }
+        sort(jobs.begin(), jobs.end());
+        return helper(jobs, 0, dp);
+    }
+};
